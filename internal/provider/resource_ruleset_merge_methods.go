@@ -45,16 +45,20 @@ func (r *rulesetAllowedMergeMethodsResource) Schema(
 	resp *resource.SchemaResponse,
 ) {
 	resp.Schema = schema.Schema{
+		Description: "Manages allowed merge methods for a GitHub repository ruleset.",
 		Attributes: map[string]schema.Attribute{
 			"repository": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "The name of the repository (e.g., 'owner/repo').",
 			},
 			"ruleset_id": schema.StringAttribute{
-				Required: true,
+				Required:    true,
+				Description: "The ID of the ruleset to manage.",
 			},
 			"allowed_merge_methods": schema.SetAttribute{
 				ElementType: types.StringType,
 				Required:    true,
+				Description: "Set of allowed merge methods. Valid values are: 'merge', 'squash', 'rebase'.",
 			},
 			"force_update": schema.StringAttribute{
 				Optional:    true,

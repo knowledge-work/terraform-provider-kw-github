@@ -18,18 +18,21 @@ func New() provider.Provider {
 type kwgithubProvider struct{}
 
 func (p *kwgithubProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "kw_github"
+	resp.TypeName = "kwgithub"
 }
 
 func (p *kwgithubProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Description: "The KW GitHub provider is used to interact with GitHub resources specific to Knowledge Work organization.",
 		Attributes: map[string]schema.Attribute{
 			"token": schema.StringAttribute{
-				Optional:  true,
-				Sensitive: true,
+				Optional:    true,
+				Sensitive:   true,
+				Description: "GitHub personal access token. Can also be set via GITHUB_TOKEN environment variable.",
 			},
 			"github_base_url": schema.StringAttribute{
-				Optional: true,
+				Optional:    true,
+				Description: "GitHub base URL. Defaults to https://api.github.com. Can also be set via GITHUB_BASE_URL environment variable.",
 			},
 		},
 	}

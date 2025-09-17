@@ -1,0 +1,26 @@
+# tagpr - tag pull request based release flow
+# https://github.com/Songmu/tagpr
+
+[tagpr]
+# versioning rule. available: "git" or "semver"
+versionFile = "-"
+vPrefix = true
+releaseBranch = "main"
+changelog = true
+command = "make build"
+
+# Major release branch prefix
+# When you create a branch with this prefix, tagpr will create a major release
+# e.g. "release/v1", "release/v2"
+majorBranchPrefix = "release/v"
+
+# Release commit message template
+# Available variables: {{.Version}}, {{.PrevVersion}}, {{.Changelog}}
+releaseCommit = "Release {{.Version}}"
+
+# Release body template for GitHub Release
+# Available variables: {{.Version}}, {{.PrevVersion}}, {{.Changelog}}
+releaseBody = |
+  ## {{.Version}}
+  
+  {{.Changelog}}
