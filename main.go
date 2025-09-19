@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/knowledge-work/knowledgework/terraform-provider/github-repository-rule/internal/provider"
+	"github.com/knowledge-work/terraform-provider-kw-github/internal/provider"
 )
 
 func main() {

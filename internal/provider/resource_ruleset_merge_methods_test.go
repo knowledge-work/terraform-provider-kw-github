@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/go-github/v74/github"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/knowledge-work/knowledgework/terraform-provider/github-repository-rule/internal/githubclient"
+	"github.com/knowledge-work/terraform-provider-kw-github/internal/githubclient"
 )
 
 // Mock GitHub API tests

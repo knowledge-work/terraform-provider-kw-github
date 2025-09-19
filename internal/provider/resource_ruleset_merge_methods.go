@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/knowledge-work/knowledgework/terraform-provider/github-repository-rule/internal/githubclient"
+	"github.com/knowledge-work/terraform-provider-kw-github/internal/githubclient"
 )
 
 func NewRulesetAllowedMergeMethodsResource() resource.Resource {

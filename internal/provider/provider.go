@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/knowledge-work/knowledgework/terraform-provider/github-repository-rule/internal/githubclient"
+	"github.com/knowledge-work/terraform-provider-kw-github/internal/githubclient"
 )
 
 func New() provider.Provider {
