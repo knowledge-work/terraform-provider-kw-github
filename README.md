@@ -9,7 +9,7 @@ terraform {
   required_providers {
     kwgithub = {
       source = "knowledge-work/kw-github"
-      version = "~> 0.0.4"
+      // version = "0.0.5"
     }
   }
 }
@@ -36,6 +36,7 @@ provider "kwgithub" {
 ```
 
 Set environment variables:
+
 - `GITHUB_APP_ID`
 - `GITHUB_APP_INSTALLATION_ID`
 - `GITHUB_APP_PEM_FILE`
@@ -44,7 +45,7 @@ Set environment variables:
 
 ```hcl
 resource "kwgithub_ruleset_allowed_merge_methods" "example" {
-  repository = "owner/repo"
+  repository = "repo"
   ruleset_id = "123456"
   allowed_merge_methods = ["merge", "squash"]
 }
