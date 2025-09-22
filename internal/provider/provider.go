@@ -33,6 +33,10 @@ func (p *kwgithubProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				Sensitive:   true,
 				Description: "GitHub personal access token. Can also be set via GITHUB_TOKEN environment variable.",
 			},
+			"owner": schema.StringAttribute{
+				Optional:    true,
+				Description: "GitHub owner name to manage. Can also be set via GITHUB_OWNER environment variable.",
+			},
 			"github_base_url": schema.StringAttribute{
 				Optional:    true,
 				Description: "GitHub base URL. Defaults to https://api.github.com. Can also be set via GITHUB_BASE_URL environment variable.",
@@ -47,15 +51,15 @@ func (p *kwgithubProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
-							Required:    true,
+							Optional:    true,
 							Description: "GitHub App ID. Can also be set via GITHUB_APP_ID environment variable.",
 						},
 						"installation_id": schema.StringAttribute{
-							Required:    true,
+							Optional:    true,
 							Description: "GitHub App installation ID. Can also be set via GITHUB_APP_INSTALLATION_ID environment variable.",
 						},
 						"pem_file": schema.StringAttribute{
-							Required:    true,
+							Optional:    true,
 							Sensitive:   true,
 							Description: "GitHub App private key PEM file contents. Can also be set via GITHUB_APP_PEM_FILE environment variable.",
 						},
@@ -69,6 +73,7 @@ func (p *kwgithubProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 func (p *kwgithubProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	var config struct {
 		Token         string `tfsdk:"token"`
+		Owner         string `tfsdk:"owner"`
 		GithubBaseURL string `tfsdk:"github_base_url"`
 		AppAuth       []struct {
 			ID             string `tfsdk:"id"`
@@ -110,13 +115,20 @@ func (p *kwgithubProvider) Configure(ctx context.Context, req provider.Configure
 		if appID == "" || installationID == "" || pemFile == "" {
 			resp.Diagnostics.AddError(
 				"Incomplete GitHub App configuration",
-				"app_auth.id, app_auth.installation_id, and app_auth.pem_file must all be set",
+				"app_auth.id, app_auth.installation_id, and app_auth.pem_file must all be set either in configuration or via environment variables (GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID, GITHUB_APP_PEM_FILE)",
 			)
 			return
 		}
 
 		pemFile = strings.Replace(pemFile, `\n`, "\n", -1)
 		client = githubclient.NewClientWithApp(appID, installationID, pemFile, baseURL)
+		if client == nil {
+			resp.Diagnostics.AddError(
+				"Failed to create GitHub App client",
+				"Unable to generate access token from GitHub App credentials",
+			)
+			return
+		}
 	} else {
 		token = config.Token
 		if token == "" {
