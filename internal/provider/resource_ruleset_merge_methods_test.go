@@ -58,11 +58,11 @@ func TestResourceRulesetAllowedMergeMethodsWithMock(t *testing.T) {
 	// Test upsert function directly
 	t.Run("Upsert", func(t *testing.T) {
 		resource := &rulesetAllowedMergeMethodsResource{
-			client: &githubclient.Client{Client: client},
+			client: &githubclient.Client{Client: client, Owner: "owner"},
 		}
 
 		plan := &rulesetAllowedMergeMethodsResourceModel{
-			Repository:          types.StringValue("owner/repo"),
+			Repository:          types.StringValue("repo"),
 			RulesetID:           types.StringValue("123"),
 			AllowedMergeMethods: convertToSet([]string{"merge"}),
 		}
@@ -86,13 +86,13 @@ func TestResourceRulesetAllowedMergeMethodsWithMock(t *testing.T) {
 		getCalled, putCalled = false, false
 
 		resource := &rulesetAllowedMergeMethodsResource{
-			client: &githubclient.Client{Client: client},
+			client: &githubclient.Client{Client: client, Owner: "owner"},
 		}
 
 		// Test the delete logic by calling the same upsert function
 		// that Delete would call internally (with default methods)
 		plan := &rulesetAllowedMergeMethodsResourceModel{
-			Repository:          types.StringValue("owner/repo"),
+			Repository:          types.StringValue("repo"),
 			RulesetID:           types.StringValue("123"),
 			AllowedMergeMethods: convertToSet([]string{"merge", "squash", "rebase"}), // default methods
 		}
@@ -143,43 +143,6 @@ func TestResourceRulesetAllowedMergeMethodsWithMock(t *testing.T) {
 }
 
 // Unit tests for helper functions
-func TestParseRepo(t *testing.T) {
-	tests := []struct {
-		input         string
-		expectedOwner string
-		expectedRepo  string
-		expectError   bool
-	}{
-		{"owner/repo", "owner", "repo", false},
-		{"github/terraform-provider", "github", "terraform-provider", false},
-		{"invalid", "", "", true},
-		{"owner/repo/extra", "", "", true},
-		{"", "", "", true},
-	}
-
-	for _, test := range tests {
-		t.Run(test.input, func(t *testing.T) {
-			owner, repo, err := parseRepo(test.input)
-
-			if test.expectError {
-				if err == nil {
-					t.Errorf("Expected error for input %q, but got none", test.input)
-				}
-			} else {
-				if err != nil {
-					t.Errorf("Unexpected error for input %q: %v", test.input, err)
-				}
-				if owner != test.expectedOwner {
-					t.Errorf("Expected owner %q, got %q", test.expectedOwner, owner)
-				}
-				if repo != test.expectedRepo {
-					t.Errorf("Expected repo %q, got %q", test.expectedRepo, repo)
-				}
-			}
-		})
-	}
-}
-
 func TestParseID(t *testing.T) {
 	tests := []struct {
 		input       string
