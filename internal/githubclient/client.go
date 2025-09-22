@@ -19,19 +19,20 @@ import (
 
 type Client struct {
 	*github.Client
+	Owner string
 }
 
-func NewClient(token, baseURL string) *Client {
+func NewClient(token, baseURL, owner string) *Client {
 	var tc *http.Client
 	if token != "" {
 		tc = github.NewClient(nil).WithAuthToken(token).Client()
 	}
 
 	client, _ := github.NewClient(tc).WithEnterpriseURLs(baseURL, baseURL)
-	return &Client{client}
+	return &Client{client, owner}
 }
 
-func NewClientWithApp(appID, installationID, pemFile, baseURL string) *Client {
+func NewClientWithApp(appID, installationID, pemFile, baseURL, owner string) *Client {
 	token, err := GenerateOAuthTokenFromApp(baseURL, appID, installationID, pemFile)
 	if err != nil {
 		return nil
@@ -39,7 +40,7 @@ func NewClientWithApp(appID, installationID, pemFile, baseURL string) *Client {
 
 	tc := github.NewClient(nil).WithAuthToken(token).Client()
 	client, _ := github.NewClient(tc).WithEnterpriseURLs(baseURL, baseURL)
-	return &Client{client}
+	return &Client{client, owner}
 }
 
 func GenerateOAuthTokenFromApp(baseURL, appID, appInstallationID, pemData string) (string, error) {

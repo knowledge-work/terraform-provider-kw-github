@@ -49,7 +49,7 @@ func (r *rulesetAllowedMergeMethodsResource) Schema(
 		Attributes: map[string]schema.Attribute{
 			"repository": schema.StringAttribute{
 				Required:    true,
-				Description: "The name of the repository (e.g., 'owner/repo').",
+				Description: "The name of the repository (e.g., 'repo-name').",
 			},
 			"ruleset_id": schema.StringAttribute{
 				Required:    true,
@@ -121,11 +121,8 @@ func (r *rulesetAllowedMergeMethodsResource) Read(
 		return
 	}
 
-	owner, repo, err := parseRepo(state.Repository.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Invalid repository format", err.Error())
-		return
-	}
+	owner := r.client.Owner
+	repo := state.Repository.ValueString()
 
 	rulesetID, err := parseID(state.RulesetID.ValueString())
 	if err != nil {
@@ -150,7 +147,7 @@ func (r *rulesetAllowedMergeMethodsResource) Read(
 	expectedMethods := extractMethodsFromSet(state.AllowedMergeMethods)
 	if !methodsEqual(currentMethods, expectedMethods) {
 		// Methods have been reset by GitHub, restore them
-		err = r.restoreMergeMethods(ctx, owner, repo, rulesetID, expectedMethods)
+		err = r.restoreMergeMethods(ctx, repo, rulesetID, expectedMethods)
 		if err != nil {
 			resp.Diagnostics.AddWarning(
 				"Merge methods were reset",
@@ -202,11 +199,8 @@ func (r *rulesetAllowedMergeMethodsResource) Delete(
 		return
 	}
 
-	owner, repo, err := parseRepo(state.Repository.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError("Invalid repository format", err.Error())
-		return
-	}
+	owner := r.client.Owner
+	repo := state.Repository.ValueString()
 
 	rulesetID, err := parseID(state.RulesetID.ValueString())
 	if err != nil {
@@ -251,7 +245,7 @@ func (r *rulesetAllowedMergeMethodsResource) ImportState(
 	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 		resp.Diagnostics.AddError(
 			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected import identifier with format: owner/repo:ruleset_id. Got: %q", req.ID),
+			fmt.Sprintf("Expected import identifier with format: repo:ruleset_id. Got: %q", req.ID),
 		)
 		return
 	}
@@ -264,10 +258,8 @@ func (r *rulesetAllowedMergeMethodsResource) upsert(
 	ctx context.Context,
 	plan *rulesetAllowedMergeMethodsResourceModel,
 ) error {
-	owner, repo, err := parseRepo(plan.Repository.ValueString())
-	if err != nil {
-		return err
-	}
+	owner := r.client.Owner
+	repo := plan.Repository.ValueString()
 
 	rulesetID, err := parseID(plan.RulesetID.ValueString())
 	if err != nil {
@@ -295,14 +287,6 @@ func (r *rulesetAllowedMergeMethodsResource) upsert(
 
 	_, _, err = r.client.Repositories.UpdateRuleset(ctx, owner, repo, rulesetID, *ruleset)
 	return err
-}
-
-func parseRepo(repo string) (string, string, error) {
-	parts := strings.Split(repo, "/")
-	if len(parts) != 2 {
-		return "", "", fmt.Errorf("invalid repository format")
-	}
-	return parts[0], parts[1], nil
 }
 
 func parseID(id string) (int64, error) {
@@ -374,12 +358,12 @@ func methodsEqual(a, b []string) bool {
 // restoreMergeMethods restores the merge methods to the expected values
 func (r *rulesetAllowedMergeMethodsResource) restoreMergeMethods(
 	ctx context.Context,
-	owner, repo string,
+	repo string,
 	rulesetID int64,
 	expectedMethods []string,
 ) error {
 	plan := &rulesetAllowedMergeMethodsResourceModel{
-		Repository:          types.StringValue(fmt.Sprintf("%s/%s", owner, repo)),
+		Repository:          types.StringValue(repo),
 		RulesetID:           types.StringValue(fmt.Sprintf("%d", rulesetID)),
 		AllowedMergeMethods: convertToSet(expectedMethods),
 	}

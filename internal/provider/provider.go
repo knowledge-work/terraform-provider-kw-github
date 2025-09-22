@@ -95,6 +95,18 @@ func (p *kwgithubProvider) Configure(ctx context.Context, req provider.Configure
 		baseURL = envBaseURL
 	}
 
+	owner := ""
+	if !config.Owner.IsNull() && !config.Owner.IsUnknown() {
+		owner = config.Owner.ValueString()
+	} else if envOwner := os.Getenv("GITHUB_OWNER"); envOwner != "" {
+		owner = envOwner
+	}
+
+	if owner == "" {
+		resp.Diagnostics.AddError("Missing owner", "owner must be configured either in provider configuration or via GITHUB_OWNER environment variable")
+		return
+	}
+
 	var token string
 	var client *githubclient.Client
 
@@ -131,7 +143,7 @@ func (p *kwgithubProvider) Configure(ctx context.Context, req provider.Configure
 		}
 
 		pemFile = strings.Replace(pemFile, `\n`, "\n", -1)
-		client = githubclient.NewClientWithApp(appID, installationID, pemFile, baseURL)
+		client = githubclient.NewClientWithApp(appID, installationID, pemFile, baseURL, owner)
 		if client == nil {
 			resp.Diagnostics.AddError(
 				"Failed to create GitHub App client",
@@ -150,7 +162,7 @@ func (p *kwgithubProvider) Configure(ctx context.Context, req provider.Configure
 			resp.Diagnostics.AddError("Missing authentication", "Either token or app_auth must be configured")
 			return
 		}
-		client = githubclient.NewClient(token, baseURL)
+		client = githubclient.NewClient(token, baseURL, owner)
 	}
 
 	resp.ResourceData = client
