@@ -26,7 +26,7 @@ resource "kwgithub_ruleset_allowed_merge_methods" "example" {
 ### Required
 
 - `allowed_merge_methods` (Set of String) Set of allowed merge methods. Valid values are: 'merge', 'squash', 'rebase'.
-- `repository` (String) The name of the repository (e.g., 'owner/repo').
+- `repository` (String) The name of the repository (e.g., 'repo-name').
 - `ruleset_id` (String) The ID of the ruleset to manage.
 
 ### Optional
