@@ -3,8 +3,10 @@ module github.com/knowledge-work/terraform-provider-kw-github
 go 1.23.0
 
 require (
+	github.com/go-jose/go-jose/v3 v3.0.4
 	github.com/google/go-github/v74 v74.0.0
 	github.com/hashicorp/terraform-plugin-framework v1.15.1
+	github.com/hashicorp/terraform-plugin-framework-validators v0.18.0
 	github.com/hashicorp/terraform-plugin-go v0.28.0
 )
 
@@ -25,6 +27,7 @@ require (
 	github.com/oklog/run v1.0.0 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
+	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
