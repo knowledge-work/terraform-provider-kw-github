@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.0.6](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.5...v0.0.6) - 2025-09-22
+- feat: make repository attribute compatible with GitHub provider format by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/11
+
 ## [v0.0.5](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.4...v0.0.5) - 2025-09-22
 - fix:types by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/9
 
