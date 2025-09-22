@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/knowledge-work/terraform-provider-kw-github/internal/githubclient"
 )
 
@@ -72,13 +73,13 @@ func (p *kwgithubProvider) Schema(_ context.Context, _ provider.SchemaRequest, r
 
 func (p *kwgithubProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 	var config struct {
-		Token         string `tfsdk:"token"`
-		Owner         string `tfsdk:"owner"`
-		GithubBaseURL string `tfsdk:"github_base_url"`
+		Token         types.String `tfsdk:"token"`
+		Owner         types.String `tfsdk:"owner"`
+		GithubBaseURL types.String `tfsdk:"github_base_url"`
 		AppAuth       []struct {
-			ID             string `tfsdk:"id"`
-			InstallationID string `tfsdk:"installation_id"`
-			PemFile        string `tfsdk:"pem_file"`
+			ID             types.String `tfsdk:"id"`
+			InstallationID types.String `tfsdk:"installation_id"`
+			PemFile        types.String `tfsdk:"pem_file"`
 		} `tfsdk:"app_auth"`
 	}
 
@@ -88,8 +89,8 @@ func (p *kwgithubProvider) Configure(ctx context.Context, req provider.Configure
 	}
 
 	baseURL := "https://api.github.com"
-	if config.GithubBaseURL != "" {
-		baseURL = config.GithubBaseURL
+	if !config.GithubBaseURL.IsNull() && !config.GithubBaseURL.IsUnknown() {
+		baseURL = config.GithubBaseURL.ValueString()
 	} else if envBaseURL := os.Getenv("GITHUB_BASE_URL"); envBaseURL != "" {
 		baseURL = envBaseURL
 	}
@@ -99,15 +100,24 @@ func (p *kwgithubProvider) Configure(ctx context.Context, req provider.Configure
 
 	if len(config.AppAuth) > 0 {
 		appAuth := config.AppAuth[0]
-		appID := appAuth.ID
+		appID := ""
+		if !appAuth.ID.IsNull() && !appAuth.ID.IsUnknown() {
+			appID = appAuth.ID.ValueString()
+		}
 		if appID == "" {
 			appID = os.Getenv("GITHUB_APP_ID")
 		}
-		installationID := appAuth.InstallationID
+		installationID := ""
+		if !appAuth.InstallationID.IsNull() && !appAuth.InstallationID.IsUnknown() {
+			installationID = appAuth.InstallationID.ValueString()
+		}
 		if installationID == "" {
 			installationID = os.Getenv("GITHUB_APP_INSTALLATION_ID")
 		}
-		pemFile := appAuth.PemFile
+		pemFile := ""
+		if !appAuth.PemFile.IsNull() && !appAuth.PemFile.IsUnknown() {
+			pemFile = appAuth.PemFile.ValueString()
+		}
 		if pemFile == "" {
 			pemFile = os.Getenv("GITHUB_APP_PEM_FILE")
 		}
@@ -130,7 +140,9 @@ func (p *kwgithubProvider) Configure(ctx context.Context, req provider.Configure
 			return
 		}
 	} else {
-		token = config.Token
+		if !config.Token.IsNull() && !config.Token.IsUnknown() {
+			token = config.Token.ValueString()
+		}
 		if token == "" {
 			token = os.Getenv("GITHUB_TOKEN")
 		}
