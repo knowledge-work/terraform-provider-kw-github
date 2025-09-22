@@ -15,7 +15,7 @@ A Terraform provider for managing GitHub repository rulesets with enhanced suppo
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.0
-- [Go](https://golang.org/doc/install) >= 1.23 (for development)
+- [Go](https://golang.org/doc/install) >= 1.23.0 (for development)
 - GitHub Personal Access Token with appropriate permissions
 
 ## Installation
@@ -27,9 +27,9 @@ To use this provider in your Terraform configuration:
 ```hcl
 terraform {
   required_providers {
-    kw_github = {
-      source = "knowledge-work/kw-github"
-      version = "~> 1.0"
+    kwgithub = {
+      source = "knowledge-work/kwgithub"
+      version = "~> 0.0.2"
     }
   }
 }
@@ -61,7 +61,7 @@ Or use the development override in your `~/.terraformrc`:
 ```hcl
 provider_installation {
   dev_overrides {
-    "knowledge-work/kw-github" = "/path/to/your/terraform-provider-kw-github"
+    "knowledge-work/kwgithub" = "/path/to/your/terraform-provider-kw-github"
   }
   direct {}
 }
@@ -74,14 +74,14 @@ provider_installation {
 ```hcl
 terraform {
   required_providers {
-    kw_github = {
-      source = "knowledge-work/kw_github"
-      version = "1.0.0"
+    kwgithub = {
+      source = "knowledge-work/kwgithub"
+      version = "~> 0.0.2"
     }
   }
 }
 
-provider "kw_github" {
+provider "kwgithub" {
   # GitHub token (optional, can also use GITHUB_TOKEN environment variable)
   token = var.github_token
 
@@ -97,7 +97,7 @@ The provider supports two authentication methods:
 1. **Provider Configuration** (Recommended):
 
    ```hcl
-   provider "kw_github" {
+   provider "kwgithub" {
      token = var.github_token
    }
    ```
@@ -112,14 +112,14 @@ The provider will use the `token` attribute if provided, otherwise it will fall 
 
 ## Resources
 
-### `kw_github_ruleset_allowed_merge_methods`
+### `kwgithub_ruleset_allowed_merge_methods`
 
 Manages allowed merge methods for a GitHub repository ruleset.
 
 #### Example Usage
 
 ```hcl
-resource "kw_github_ruleset_allowed_merge_methods" "example" {
+resource "kwgithub_ruleset_allowed_merge_methods" "example" {
   repository = "owner/repo"
   ruleset_id = "123456"
   allowed_merge_methods = ["merge", "squash"]
@@ -129,7 +129,7 @@ resource "kw_github_ruleset_allowed_merge_methods" "example" {
 
   # Ensure this runs after other ruleset changes
   depends_on = [
-    kw_github_other_ruleset_resource.example
+    kwgithub_other_ruleset_resource.example
   ]
 }
 ```
@@ -148,7 +148,7 @@ resource "kw_github_ruleset_allowed_merge_methods" "example" {
 #### Import
 
 ```bash
-terraform import kw_github_ruleset_allowed_merge_methods.example owner/repo:123456
+terraform import kwgithub_ruleset_allowed_merge_methods.example owner/repo:123456
 ```
 
 ## Why This Provider?
@@ -166,7 +166,7 @@ While the official GitHub Terraform provider (`integrations/github`) supports re
 
 ## Use Cases
 
-1. **Complement Official Provider**: Use `github_repository_ruleset` for main ruleset configuration and `kw_github_ruleset_allowed_merge_methods` for reliable merge method management
+1. **Complement Official Provider**: Use `github_repository_ruleset` for main ruleset configuration and `kwgithub_ruleset_allowed_merge_methods` for reliable merge method management
 2. **Existing Rulesets**: Manage merge methods for rulesets created outside of Terraform
 3. **Complex Dependencies**: Handle scenarios where ruleset updates from other sources affect merge methods
 
@@ -179,9 +179,9 @@ terraform {
       source  = "integrations/github"
       version = "~> 6.0"
     }
-    kw_github = {
-      source = "knowledge-work/kw_github"
-      version = "1.0.0"
+    kwgithub = {
+      source = "knowledge-work/kwgithub"
+      version = "~> 0.0.2"
     }
   }
 }
@@ -190,7 +190,7 @@ provider "github" {
   token = var.github_token
 }
 
-provider "kw_github" {
+provider "kwgithub" {
   token = var.github_token
 }
 
@@ -223,7 +223,7 @@ resource "github_repository_ruleset" "main" {
 }
 
 # Manage merge methods with our specialized provider
-resource "kw_github_ruleset_allowed_merge_methods" "main" {
+resource "kwgithub_ruleset_allowed_merge_methods" "main" {
   repository = "myorg/myrepo"
   ruleset_id = github_repository_ruleset.main.id
   allowed_merge_methods = ["merge", "squash"]
@@ -250,6 +250,8 @@ resource "kw_github_ruleset_allowed_merge_methods" "main" {
 ### Building from Source
 
 ```bash
+make build
+# Or manually:
 go build -o terraform-provider-kw-github ./cmd/terraform-provider-kwgithub
 ```
 
@@ -257,23 +259,22 @@ go build -o terraform-provider-kw-github ./cmd/terraform-provider-kwgithub
 
 ```bash
 # Unit tests
-go test ./...
+make test
 
 # Acceptance tests (requires GITHUB_TOKEN)
-TF_ACC=1 go test ./... -v
+make test-acc
 ```
 
 ### Code Quality
 
 ```bash
-# Format code
-go fmt ./...
+# Format and lint code
+make lint
 
-# Run linter
-go vet ./...
-
-# Tidy dependencies
-go mod tidy
+# Or run individual commands:
+make fmt    # Format code
+make vet    # Run go vet
+make tidy   # Tidy dependencies
 ```
 
 ## Contributing

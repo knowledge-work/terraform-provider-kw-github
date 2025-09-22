@@ -49,3 +49,4 @@
 	vPrefix = true
 	releaseBranch = main
 	versionFile = -
+	excludePaths = README.md
