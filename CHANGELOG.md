@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.0.5](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.4...v0.0.5) - 2025-09-22
+- fix:types by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/9
+
 ## [v0.0.4](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.3...v0.0.4) - 2025-09-22
 - fix/auth by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/7
 
