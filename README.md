@@ -9,7 +9,6 @@ terraform {
   required_providers {
     kwgithub = {
       source = "knowledge-work/kw-github"
-      // version = "0.0.5"
     }
   }
 }
@@ -21,8 +20,8 @@ terraform {
 
 ```hcl
 provider "kwgithub" {
-  token = var.github_token
   owner = "knowledge-work"
+  token = var.github_token
 }
 ```
 
@@ -73,16 +72,36 @@ resource "kwgithub_ruleset_allowed_merge_methods" "example" {
   ruleset_id = github_repository_ruleset.example.ruleset_id
   allowed_merge_methods = ["merge", "squash"]
 
-  # Recommended: GitHub resets allowed_merge_methods when ruleset is updated
-  force_update = timestamp()
+  # Recommended: Update only when ruleset configuration changes
+  force_update = sha256(jsonencode({
+    name        = github_repository_ruleset.example.name
+    target      = github_repository_ruleset.example.target
+    enforcement = github_repository_ruleset.example.enforcement
+    conditions  = github_repository_ruleset.example.conditions
+    rules       = github_repository_ruleset.example.rules
+  }))
 
   depends_on = [github_repository_ruleset.example]
 }
 ```
 
-### ⚠️Important: Force Update Recommendation
+### ⚠️ Important: Force Update Recommendation
 
-It is strongly recommended to include `force_update = timestamp()` in your resource configuration. This ensures the resource is updated on every Terraform run, which is necessary because GitHub's API specification causes `allowed_merge_methods` to be reset whenever `github_repository_ruleset` is updated. Without `force_update`, your merge method configuration may be unexpectedly lost when other ruleset changes are applied.
+It is strongly recommended to include a `force_update` parameter in your resource configuration. This ensures the resource is updated when the ruleset configuration changes, which is necessary because GitHub's API specification causes `allowed_merge_methods` to be reset whenever `github_repository_ruleset` is updated.
+
+Use a hash of the ruleset configuration to trigger updates only when the ruleset actually changes:
+
+```hcl
+force_update = sha256(jsonencode({
+  name        = github_repository_ruleset.example.name
+  target      = github_repository_ruleset.example.target
+  enforcement = github_repository_ruleset.example.enforcement
+  conditions  = github_repository_ruleset.example.conditions
+  rules       = github_repository_ruleset.example.rules
+}))
+```
+
+This approach avoids unnecessary updates while ensuring merge method configuration is restored when needed.
 
 ## Why This Provider?
 
