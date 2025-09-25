@@ -1,12 +1,13 @@
 package githubclient
 
 import (
-	"context"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -95,44 +96,36 @@ func generateAppJWT(appID string, issuedAt time.Time, privateKeyPEM []byte) (str
 }
 
 func getInstallationAccessToken(baseURL, appJWT, installationID string) (string, error) {
-	tc := &http.Client{
-		Transport: &jwtTransport{
-			token: appJWT,
-			rt:    http.DefaultTransport,
-		},
-		Timeout: 30 * time.Second,
-	}
+	url := fmt.Sprintf("%s/app/installations/%s/access_tokens", baseURL, installationID)
 
-	client, err := github.NewClient(tc).WithEnterpriseURLs(baseURL, baseURL)
+	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to create github client: %v", err)
+		return "", fmt.Errorf("failed to create request: %v", err)
 	}
 
-	installationIDInt, err := strconv.ParseInt(installationID, 10, 64)
-	if err != nil {
-		return "", fmt.Errorf("invalid installation ID: %v", err)
-	}
-
-	token, _, err := client.Apps.CreateInstallationToken(
-		context.Background(),
-		installationIDInt,
-		&github.InstallationTokenOptions{},
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to create installation token: %v", err)
-	}
-
-	return token.GetToken(), nil
-}
-
-type jwtTransport struct {
-	token string
-	rt    http.RoundTripper
-}
-
-func (t *jwtTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", "Bearer "+t.token)
+	req.Header.Set("Authorization", "Bearer "+appJWT)
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 	req.Header.Set("User-Agent", "terraform-provider-kw-github")
-	return t.rt.RoundTrip(req)
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("failed to make request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("failed to get access token: %s - %s", resp.Status, string(body))
+	}
+
+	var tokenResp struct {
+		Token string `json:"token"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return "", fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	return tokenResp.Token, nil
 }
