@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.0.8](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.7...v0.0.8) - 2025-09-25
+- Revert "use CreateInstallationToken" by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/16
+
 ## [v0.0.7](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.6...v0.0.7) - 2025-09-25
 - add:go-jwt by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/14
 - use CreateInstallationToken by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/15
