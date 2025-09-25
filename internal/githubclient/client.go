@@ -12,8 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-jose/go-jose/v3"
-	"github.com/go-jose/go-jose/v3/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/go-github/v74/github"
 )
 
@@ -81,23 +80,19 @@ func generateAppJWT(appID string, issuedAt time.Time, privateKeyPEM []byte) (str
 		return "", fmt.Errorf("invalid app ID: %v", err)
 	}
 
-	claims := jwt.Claims{
-		Issuer:   strconv.Itoa(appIDInt),
-		IssuedAt: jwt.NewNumericDate(issuedAt),
-		Expiry:   jwt.NewNumericDate(issuedAt.Add(10 * time.Minute)),
+	claims := jwt.RegisteredClaims{
+		Issuer:    strconv.Itoa(appIDInt),
+		IssuedAt:  jwt.NewNumericDate(issuedAt),
+		ExpiresAt: jwt.NewNumericDate(issuedAt.Add(10 * time.Minute)),
 	}
 
-	signer, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.RS256, Key: privateKey}, nil)
-	if err != nil {
-		return "", fmt.Errorf("failed to create signer: %v", err)
-	}
-
-	token, err := jwt.Signed(signer).Claims(claims).CompactSerialize()
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	tokenString, err := token.SignedString(privateKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to sign token: %v", err)
 	}
 
-	return token, nil
+	return tokenString, nil
 }
 
 func getInstallationAccessToken(baseURL, appJWT, installationID string) (string, error) {
