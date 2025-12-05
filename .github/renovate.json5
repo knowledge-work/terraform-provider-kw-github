@@ -1,0 +1,29 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["github>knowledge-work/renovate-config"],
+  // 以下はこのリポジトリ固有の設定
+  schedule: ["before 4am on Monday"],
+  labels: ["dependencies"],
+  packageRules: [
+    {
+      matchManagers: ["gomod"],
+      groupName: "Go dependencies",
+    },
+    {
+      matchManagers: ["github-actions"],
+      groupName: "GitHub Actions",
+    },
+    {
+      matchPackageNames: [
+        "hashicorp/terraform-plugin-framework",
+        "hashicorp/terraform-plugin-log",
+        "hashicorp/terraform-plugin-testing",
+      ],
+      groupName: "Terraform Plugin Framework",
+    },
+  ],
+  vulnerabilityAlerts: {
+    enabled: true,
+  },
+  osvVulnerabilityAlerts: true,
+}
