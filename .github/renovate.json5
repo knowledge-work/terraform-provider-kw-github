@@ -1,6 +1,6 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["github>knowledge-work/renovate-config"],
+  extends: ["local>knowledge-work/renovate-config"],
   // 以下はこのリポジトリ固有の設定
   schedule: ["before 4am on Monday"],
   labels: ["dependencies"],
