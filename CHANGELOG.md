@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.0.9](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.8...v0.0.9) - 2025-12-09
+- :arrow_up: [CI] Renovate 設定を共通設定に移行 by @hori-ryota in https://github.com/knowledge-work/terraform-provider-kw-github/pull/22
+
 ## [v0.0.8](https://github.com/knowledge-work/terraform-provider-kw-github/compare/v0.0.7...v0.0.8) - 2025-09-25
 - Revert "use CreateInstallationToken" by @yumafuu in https://github.com/knowledge-work/terraform-provider-kw-github/pull/16
 
