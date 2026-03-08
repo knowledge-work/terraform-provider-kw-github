@@ -1,10 +1,11 @@
 module github.com/knowledge-work/terraform-provider-kw-github
 
-go 1.23.0
+go 1.25.0
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-github/v74 v74.0.0
+	github.com/google/go-github/v84 v84.0.0
 	github.com/hashicorp/terraform-plugin-framework v1.15.1
 	github.com/hashicorp/terraform-plugin-framework-validators v0.18.0
 	github.com/hashicorp/terraform-plugin-go v0.28.0
@@ -13,7 +14,7 @@ require (
 require (
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-plugin v1.6.3 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
